@@ -10,14 +10,13 @@ import org.springframework.security.config.annotation.web.configuration.{EnableW
 
   @Override
   override def configure(http: HttpSecurity) {
-    http.csrf().disable().cors().disable().authorizeRequests().anyRequest().permitAll();
 
-    //    http
-      //      .authorizeRequests()
-      //      .anyRequest()
-      //      .authenticated()
-      //      .and()
-      //      .httpBasic();
+        http
+            .authorizeRequests()
+            .anyRequest()
+            .authenticated()
+            .and()
+            .httpBasic();
   }
 
 

@@ -19,7 +19,7 @@ class StartupService {
   def createPlaceholderVideo(duration: Int): String = {
     val imagePath = new File(this.getClass.getClassLoader.getResource("static/add-animation-sign.png").getPath).getPath
     val outFile = new File(this.getClass.getClassLoader.getResource("tapestry").getPath).getPath + "/tapestry.mp4"
-    val audioPath = new File(this.getClass.getClassLoader.getResource("static/audiotrack.wav").getPath).getPath
+    val audioPath = new File(this.getClass.getClassLoader.getResource("static/audiotrack.mp4").getPath).getPath
     // frame rate 1/5 means each image lasts 5 seconds but -r 25 overrides this so that the frame rate is 25 fps
     // -shortest clips the audio to be the same length as the video
     // -c:v selects the codecs for the video to be libx264 which is a common encoder i.e. -(codecs):(video)
