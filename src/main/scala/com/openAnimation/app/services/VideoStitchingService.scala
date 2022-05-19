@@ -79,9 +79,10 @@ class VideoStitchingService {
     val stderr = new StringBuilder
     val tapestryMp4 = new File(this.getClass.getClassLoader.getResource("tapestry/tapestry.mp4").getPath).getPath
     val outputPath = new File(new File(this.getClass.getClassLoader.getResource("working").getPath).getPath + s"/$videoName.mp4").getPath
-    println(s"""ffmpeg -y -ss $startTime -to $endTime  -i $tapestryMp4 -c copy -an $outputPath""")
+    val cmd = s"""ffmpeg -y -ss $startTime -to $endTime  -i $tapestryMp4 -c copy -an $outputPath"""
     // -an means copy just video stream, not audio. -y means overwrite existing files
-    val exitCode = s"""ffmpeg -y -ss $startTime -to $endTime  -i $tapestryMp4 -c copy -an $outputPath""" ! ProcessLogger(stdout append _, stderr append _ + "\n")
+    println(cmd)
+    val exitCode = cmd ! ProcessLogger(stdout append _, stderr append _ + "\n")
     if (exitCode != 0) {
       println(stderr.toString)
       throw new Exception(s"Failed trim video $videoName")
