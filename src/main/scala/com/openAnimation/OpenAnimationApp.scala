@@ -1,6 +1,6 @@
 package com.openAnimation
 
-import com.openAnimation.services.{PrimaryService, StartupService}
+import com.openAnimation.app.services.StartupService
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 

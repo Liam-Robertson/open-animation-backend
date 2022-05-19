@@ -1,4 +1,4 @@
-package com.openAnimation.models
+package com.openAnimation.app.models
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import spray.json.{DefaultJsonProtocol, RootJsonFormat}

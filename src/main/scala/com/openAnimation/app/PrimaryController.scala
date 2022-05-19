@@ -1,8 +1,8 @@
-package com.openAnimation.controllers
+package com.openAnimation.app
 
-import com.openAnimation.models.Snippet
-import com.openAnimation.services.{PrimaryService, StartupService}
-import org.springframework.web.bind.annotation.{CrossOrigin, GetMapping, PostMapping, RequestBody, RestController}
+import com.openAnimation.app.models.Snippet
+import com.openAnimation.app.services.StartupService
+import org.springframework.web.bind.annotation._
 
 @CrossOrigin
 @RestController
@@ -13,7 +13,7 @@ class PrimaryController(startupService: StartupService,
   def addSnippetToTapestry(@RequestBody snippet: Snippet): String = primaryService.addSnippetToTapestry(snippet)
 
   @GetMapping(Array("/getTapestry"))
-  def getTapestry: Array[Byte] = primaryService.getTapestry()
+  def getTapestry: Array[Byte] = primaryService.getTapestry
 
   @GetMapping(Array("/"))
   def getServerStatusMessage: String = startupService.serverStatusMessage
