@@ -1,19 +1,31 @@
 package com.openAnimation.app.models;
 
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Column;
+import javax.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Builder
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "commentary")
 public class Commentary {
     @Id
-    @GeneratedValue
-    @Column(nullable = false, length = 36)
-    private String id;
+    @SequenceGenerator(
+            name = "commentary_sequence",
+            sequenceName = "commentary_sequence",
+            allocationSize = 1
+    )
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "commentary_sequence"
+    )
+    private Long id;
 
+    @Column(name="comment")
     private String comment;
 }

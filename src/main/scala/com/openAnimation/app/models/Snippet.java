@@ -8,5 +8,4 @@ public class Snippet {
     private String startTime;
     private String endTime;
     private String image;
-
 }

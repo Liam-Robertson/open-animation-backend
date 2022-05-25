@@ -4,10 +4,10 @@ import com.openAnimation.app.models.Commentary;
 import com.openAnimation.app.models.Snippet;
 import com.openAnimation.app.repository.CommentaryRepository;
 import com.openAnimation.app.services.VideoStitchingService;
+import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,7 +15,9 @@ import java.io.InputStream;
 @Service
 public class PrimaryService {
 
-    VideoStitchingService videoStitchingService = new VideoStitchingService();
+    @Autowired
+    private CommentaryRepository commentaryRepository;
+    private VideoStitchingService videoStitchingService;
 
     public String addSnippetToTapestry(Snippet snippet) {
         String duration = videoStitchingService.getDuration(snippet.getStartTime(), snippet.getEndTime());
@@ -29,9 +31,15 @@ public class PrimaryService {
         return "Image saved successfully";
     }
 
-    public String persistCommentary(Commentary commentary) {
+    public String persistCommentary(String comment) {
+        Commentary commentary = Commentary.builder().comment(comment).build();
+        commentaryRepository.save(commentary);
+        return "Image saved successfully";
+    }
 
-    return "Image saved successfully";
+    public List<Commentary> getAllCommentary() {
+        List<Commentary> commentary = commentaryRepository.findAll();
+        return commentary;
     }
 
     public byte[] getTapestry() throws IOException {

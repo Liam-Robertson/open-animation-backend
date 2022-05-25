@@ -4,8 +4,11 @@ import com.openAnimation.app.models.Commentary;
 import com.openAnimation.app.models.Snippet;
 import com.openAnimation.app.services.StartupService;
 import java.io.IOException;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import javax.validation.Valid;
+
 
 @CrossOrigin
 @RestController
@@ -17,13 +20,18 @@ public class PrimaryController {
     private PrimaryService primaryService;
 
     @PostMapping("/addSnippetToTapestry")
-    public void addSnippetToTapestry(@RequestParam Snippet snippet) {
+    public void addSnippetToTapestry(@RequestBody Snippet snippet) {
         primaryService.addSnippetToTapestry(snippet);
     }
 
-    @PostMapping("/addCommentary")
-    public void addCommentary(@RequestBody Commentary commentary) {
-        primaryService.persistCommentary(commentary);
+    @PostMapping("/saveCommentary")
+    public void addCommentary(@RequestBody String comment) {
+        primaryService.persistCommentary(comment);
+    }
+
+    @GetMapping("/getAllCommentary")
+    public List<Commentary> getAllCommentary() {
+        return primaryService.getAllCommentary();
     }
 
     @GetMapping("/getTapestry")
