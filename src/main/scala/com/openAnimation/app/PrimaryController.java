@@ -2,7 +2,7 @@ package com.openAnimation.app;
 
 import com.openAnimation.app.models.Commentary;
 import com.openAnimation.app.models.Snippet;
-import com.openAnimation.app.services.StartupService1;
+import com.openAnimation.app.services.StartupService;
 import java.io.IOException;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,13 +14,13 @@ import org.springframework.web.bind.annotation.*;
 public class PrimaryController {
 
     @Autowired
-    private StartupService1 startupService;
+    private StartupService startupService;
     @Autowired
     private PrimaryService primaryService;
 
     @PostMapping("/addSnippetToTapestry")
-    public void addSnippetToTapestry(@RequestBody Snippet snippet) {
-        primaryService.addSnippetToTapestry(snippet);
+    public String addSnippetToTapestry(@RequestBody Snippet snippet) throws IOException, InterruptedException {
+        return primaryService.addSnippetToTapestry(snippet);
     }
 
     @PostMapping("/saveCommentary")

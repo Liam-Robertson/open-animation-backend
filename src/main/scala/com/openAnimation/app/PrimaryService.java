@@ -3,10 +3,13 @@ package com.openAnimation.app;
 import com.openAnimation.app.models.Commentary;
 import com.openAnimation.app.models.Snippet;
 import com.openAnimation.app.repository.CommentaryRepository;
-import com.openAnimation.app.services.VideoStitchingService1;
+import com.openAnimation.app.services.StartupService;
+import com.openAnimation.app.services.VideoStitchingService;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
@@ -18,9 +21,11 @@ public class PrimaryService {
     @Autowired
     private CommentaryRepository commentaryRepository;
     @Autowired
-    private VideoStitchingService1 videoStitchingService;
+    private VideoStitchingService videoStitchingService;
+    @Autowired
+    private StartupService startupService;
 
-    public String addSnippetToTapestry(Snippet snippet) {
+    public String addSnippetToTapestry(Snippet snippet) throws IOException, InterruptedException {
         String duration = videoStitchingService.getDuration(snippet.getStartTime(), snippet.getEndTime());
         String imageData = snippet.getImage().split("data:image/png;base64,")[1];
         String test = this.getClass().getClassLoader().getResource("images").getPath();

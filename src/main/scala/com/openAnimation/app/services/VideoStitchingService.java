@@ -8,13 +8,16 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
+import org.springframework.stereotype.Service;
 import scala.Int;
 
 import static java.lang.Math.floor;
 import static java.lang.Math.round;
 
 import static com.openAnimation.app.tools.CommandLine.executeCommand;
+import static com.openAnimation.app.tools.CommandLine.executeFfmpeg;
 
+@Service
 public class VideoStitchingService {
 
     public String stitchSnippetIntoTapestry(String timeStart, String timeEnd) throws IOException, InterruptedException {
@@ -26,12 +29,12 @@ public class VideoStitchingService {
         return "Successfully stitched new video into main animation!";
     }
 
-    public String createVideoFromImage(String duration, String imagePath) throws IOException, InterruptedException {
+    public void createVideoFromImage(String duration, String imagePath) throws IOException, InterruptedException {
         String outFile = new File(this.getClass().getClassLoader().getResource("working").getPath() + "\\currentSnippet.mp4").getPath();
-        String cmd = String.format("ffmpeg -y -framerate 1/5 -r 25 -loop 1 -i %s -c:v libx264 -t %s -pix_fmt yuv420p -vf scale=1080:720 %s", imagePath, duration, outFile);
+//        String cmd = String.format("ffmpeg -y -framerate 1/5 -r 25 -loop 1 -i %s -c:v libx264 -t %s -pix_fmt yuv420p -vf scale=1080:720 %s", imagePath, duration, outFile);
+        String[] cmd = {"ffmpeg", "-y", "-framerate", "1/5", "-r", "25", "-loop", "1", "-i", "imagePath", "-c:v", "libx264", "-t", "duration", "-pix_fmt", "yuv420p", "-vf", "scale=1080:720", "outFile"};
         System.out.println(cmd);
-        String cmdOut = executeCommand(cmd);
-        return cmdOut;
+        executeFfmpeg(cmd);
     }
 
     public void saveImageToFilesystem(String imageUrl, String imagePath) throws IOException {
@@ -48,8 +51,6 @@ public class VideoStitchingService {
     }
 
     public void stitchVideos(List<String> videoList) throws IOException, InterruptedException {
-        StringBuilder stdout = new StringBuilder();
-        StringBuilder stderr = new StringBuilder();
         Integer numOfTapestries =  new File(this.getClass().getClassLoader().getResource("tapestry").getPath()).listFiles().length;
         String textFile = new File(this.getClass().getClassLoader().getResource("working").getPath() + "/fileList.txt").getPath();
         String audioPath = new File(this.getClass().getClassLoader().getResource("static").getPath() + "/audiotrack.wav").getPath();
@@ -59,24 +60,22 @@ public class VideoStitchingService {
         String videoTextList = String.join("\n", videoList);
         bw.write(videoTextList);
         bw.close();
-        String cmd1 = String.format("ffmpeg -f concat -safe 0 -i $textFile -c copy %s", videoOutputPath);
-        String cmd2 = String.format("ffmpeg -i %s -i %s -shortest -c:v copy -c:a aac %s", videoOutputPath, audioPath, finalOutputPath);
-        System.out.println(cmd1);
-        System.out.println(cmd2);
-        executeCommand(cmd1);
-        executeCommand(cmd2);
+        String[] cmd1 = {"ffmpeg", "-f", "concat", "-safe", "0", "-i", textFile, "-c", "copy", videoOutputPath};
+        String[] cmd2 = {"ffmpeg", "-i", videoOutputPath, "-i", audioPath, "-shortest", "-c:v", "copy", "-c:a", "aac", finalOutputPath};
+        System.out.println(String.join(" ", cmd1));
+        System.out.println(String.join(" ", cmd2));
+        executeFfmpeg(cmd1);
+        executeFfmpeg(cmd2);
         new File(videoOutputPath).delete();
     }
 
     public List<String> trimVideo(String videoName, String startTime, String endTime, List<String> videoList) throws IOException, InterruptedException {
-        StringBuilder stdout = new StringBuilder();
-        StringBuilder stderr = new StringBuilder();
         String tapestryMp4 = new File(this.getClass().getClassLoader().getResource("tapestry/tapestry.mp4").getPath()).getPath();
         String outputPath = new File(new File(this.getClass().getClassLoader().getResource("working").getPath()).getPath() + String.format("/%s.mp4", videoName)).getPath();
-        String cmd = String.format("ffmpeg -y -ss %s -to %s  -i %s -c copy -an %s", startTime, endTime, tapestryMp4, outputPath);
+        String[] cmd = {"ffmpeg", "-y", "-ss", startTime, "-to", endTime, "-i", tapestryMp4, "-c", "copy", "-an", outputPath};
         // -an means copy just video stream, not audio. -y means overwrite existing files
-        System.out.println(cmd);
-        executeCommand(cmd);
+        System.out.println(String.join(" ", cmd));
+        executeFfmpeg(cmd);
         String outPath = String.format("%s/%s.mp4", this.getClass().getClassLoader().getResource("working").getPath(), videoName);
         videoList.add(String.format("file '%s'", new File(outPath).getPath()));
         return videoList;
