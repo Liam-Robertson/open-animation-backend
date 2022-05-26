@@ -34,7 +34,7 @@ public class PrimaryService {
     public String persistCommentary(String comment) {
         Commentary commentary = Commentary.builder().comment(comment).build();
         commentaryRepository.save(commentary);
-        return "Image saved successfully";
+        return "Comment saved";
     }
 
     public List<Commentary> getAllCommentary() {

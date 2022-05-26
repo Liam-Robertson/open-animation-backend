@@ -25,8 +25,8 @@ public class PrimaryController {
     }
 
     @PostMapping("/saveCommentary")
-    public void addCommentary(@RequestBody String comment) {
-        primaryService.persistCommentary(comment);
+    public String addCommentary(@RequestBody String comment) {
+        return primaryService.persistCommentary(comment);
     }
 
     @GetMapping("/getAllCommentary")
