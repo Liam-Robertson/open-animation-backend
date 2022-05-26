@@ -3,7 +3,7 @@ package com.openAnimation.app;
 import com.openAnimation.app.models.Commentary;
 import com.openAnimation.app.models.Snippet;
 import com.openAnimation.app.repository.CommentaryRepository;
-import com.openAnimation.app.services.VideoStitchingService;
+import com.openAnimation.app.services.VideoStitchingService1;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,8 @@ public class PrimaryService {
 
     @Autowired
     private CommentaryRepository commentaryRepository;
-    private VideoStitchingService videoStitchingService;
+    @Autowired
+    private VideoStitchingService1 videoStitchingService;
 
     public String addSnippetToTapestry(Snippet snippet) {
         String duration = videoStitchingService.getDuration(snippet.getStartTime(), snippet.getEndTime());

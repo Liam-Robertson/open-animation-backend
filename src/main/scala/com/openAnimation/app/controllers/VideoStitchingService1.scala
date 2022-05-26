@@ -1,16 +1,14 @@
-package com.openAnimation.app.services
+package com.openAnimation.app.controllers
 
 import org.apache.commons.io.FileUtils
 
 import java.io.{BufferedWriter, File, FileWriter}
-import java.text.SimpleDateFormat
-import java.util.{Base64, Calendar, Date}
+import java.util.Base64
 import scala.math.floor
-import scala.sys.process.ProcessLogger
+import scala.sys.process.{ProcessLogger, _}
 import scala.util.Try
-import scala.sys.process._
 
-class VideoStitchingService {
+class VideoStitchingService1 {
 
   def stitchSnippetIntoTapestry(timeStart: String, timeEnd: String): String = {
     val currentSnippetPath = new File(this.getClass.getClassLoader.getResource("working").getPath + "/currentSnippet.mp4").getPath

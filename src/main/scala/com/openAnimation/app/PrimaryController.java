@@ -2,12 +2,11 @@ package com.openAnimation.app;
 
 import com.openAnimation.app.models.Commentary;
 import com.openAnimation.app.models.Snippet;
-import com.openAnimation.app.services.StartupService;
+import com.openAnimation.app.services.StartupService1;
 import java.io.IOException;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import javax.validation.Valid;
 
 
 @CrossOrigin
@@ -15,7 +14,7 @@ import javax.validation.Valid;
 public class PrimaryController {
 
     @Autowired
-    private StartupService startupService;
+    private StartupService1 startupService;
     @Autowired
     private PrimaryService primaryService;
 

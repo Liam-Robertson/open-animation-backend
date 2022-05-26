@@ -1,13 +1,12 @@
-package com.openAnimation.app.services
+package com.openAnimation.app.controllers
 
 import org.springframework.stereotype.Service
 
 import java.io.File
-import scala.sys.process.{Process, ProcessLogger, stderr, stdout}
 import scala.sys.process._
 
 @Service
-class StartupService {
+class StartupService1 {
 
   def createInitialTapestry(): Unit = {
     val tryTapestryFile = Option(this.getClass.getClassLoader.getResource("tapestry/tapestry.mp4"))
