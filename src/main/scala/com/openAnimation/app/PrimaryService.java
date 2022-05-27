@@ -26,9 +26,9 @@ public class PrimaryService {
     private StartupService startupService;
 
     public String addSnippetToTapestry(Snippet snippet) throws IOException, InterruptedException {
+        videoStitchingService.formatTimestamp(snippet);
         String duration = videoStitchingService.getDuration(snippet.getStartTime(), snippet.getEndTime());
         String imageData = snippet.getImage().split("data:image/png;base64,")[1];
-        String test = this.getClass().getClassLoader().getResource("images").getPath();
         Integer numFiles = new File(this.getClass().getClassLoader().getResource("images").getPath()).listFiles().length + 1;
         String imagePath = new File(this.getClass().getClassLoader().getResource("images").getPath() + String.format("\\currentSnippet%s.png", numFiles)).getPath();
         videoStitchingService.saveImageToFilesystem(imageData, imagePath);
@@ -49,11 +49,11 @@ public class PrimaryService {
     }
 
     public byte[] getTapestry() throws IOException {
-    File[] tapestriesList = new File(this.getClass().getClassLoader().getResource("tapestry").getPath()).listFiles();
-    File tapestryFilePath = tapestriesList[tapestriesList.length - 1];
-    InputStream videoStreamInput = this.getClass().getClassLoader().getResourceAsStream(String.format("tapestry/%s", tapestryFilePath.getName()));
-    byte[] videoByteArr = IOUtils.toByteArray(videoStreamInput);
-    return videoByteArr;
+        Integer numOfTapestries = new File(this.getClass().getClassLoader().getResource("tapestry").getPath()).listFiles().length;
+        File tapestry = new File(this.getClass().getClassLoader().getResource("tapestry").getPath()).listFiles()[numOfTapestries - 1];
+        InputStream videoStreamInput = this.getClass().getClassLoader().getResourceAsStream(String.format("tapestry/%s", tapestry.getName()));
+        byte[] videoByteArr = IOUtils.toByteArray(videoStreamInput);
+        return videoByteArr;
     }
 
 }

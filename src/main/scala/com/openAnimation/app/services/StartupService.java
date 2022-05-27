@@ -17,7 +17,7 @@ public class StartupService {
 
     @EventListener(ApplicationReadyEvent.class)
     public void createInitialTapestry() throws IOException, InterruptedException {
-        URL tapestryFile = this.getClass().getClassLoader().getResource("tapestry/tapestry.mp4");
+        URL tapestryFile = this.getClass().getClassLoader().getResource("tapestry/tapestry1.mp4");
         if (tapestryFile != null) {
             System.out.println(String.format("Tapestry already exists: %s", tapestryFile.getPath()));
         } else {
@@ -27,7 +27,7 @@ public class StartupService {
 
     public void createPlaceholderVideo(Integer duration) throws IOException, InterruptedException {
         String imagePath = new File(this.getClass().getClassLoader().getResource("static/add-animation-sign.png").getPath()).getPath();
-        String outFile = new File(new File(this.getClass().getClassLoader().getResource("tapestry").getPath()).getPath() + "/tapestry.mp4").getPath();
+        String outFile = new File(new File(this.getClass().getClassLoader().getResource("tapestry").getPath()).getPath() + "/tapestry1.mp4").getPath();
         String audioPath = new File(this.getClass().getClassLoader().getResource("static/audiotrack.wav").getPath()).getPath();
         // frame rate 1/5 means each image lasts 5 seconds but -r 25 overrides this so that the frame rate is 25 fps
         // -shortest clips the audio to be the same length as the video

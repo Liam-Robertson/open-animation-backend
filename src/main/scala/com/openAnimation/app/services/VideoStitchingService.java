@@ -1,5 +1,6 @@
 package com.openAnimation.app.services;
 
+import com.openAnimation.app.models.Snippet;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -7,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Objects;
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;
 import scala.Int;
@@ -14,26 +16,29 @@ import scala.Int;
 import static java.lang.Math.floor;
 import static java.lang.Math.round;
 
-import static com.openAnimation.app.tools.CommandLine.executeCommand;
-import static com.openAnimation.app.tools.CommandLine.executeFfmpeg;
+import static com.openAnimation.app.tools.CommandLine.*;
 
 @Service
 public class VideoStitchingService {
 
     public String stitchSnippetIntoTapestry(String timeStart, String timeEnd) throws IOException, InterruptedException {
+        String tapestryDuration = getTapestryDuration().toString();
+        List<String> videoList = new ArrayList<String>();
         String currentSnippetPath = new File(this.getClass().getClassLoader().getResource("working").getPath() + "/currentSnippet.mp4").getPath();
-        List<String> videoList = trimVideo("tapestryPart1", "00:00", timeStart, new ArrayList<String>());
+        if (!Objects.equals(timeStart, "0.0")) {
+            trimVideo("tapestryPart1", "0.0", timeStart, videoList);
+        }
         videoList.add(String.format("file '%s'", currentSnippetPath));
-        trimVideo("tapestryPart2", timeEnd, "05:00", videoList);
-        this.stitchVideos(videoList);
+        trimVideo("tapestryPart2", timeEnd, tapestryDuration, videoList);
+        this.stitchVideos(videoList, tapestryDuration);
         return "Successfully stitched new video into main animation!";
     }
 
     public void createVideoFromImage(String duration, String imagePath) throws IOException, InterruptedException {
         String outFile = new File(this.getClass().getClassLoader().getResource("working").getPath() + "\\currentSnippet.mp4").getPath();
 //        String cmd = String.format("ffmpeg -y -framerate 1/5 -r 25 -loop 1 -i %s -c:v libx264 -t %s -pix_fmt yuv420p -vf scale=1080:720 %s", imagePath, duration, outFile);
-        String[] cmd = {"ffmpeg", "-y", "-framerate", "1/5", "-r", "25", "-loop", "1", "-i", "imagePath", "-c:v", "libx264", "-t", "duration", "-pix_fmt", "yuv420p", "-vf", "scale=1080:720", "outFile"};
-        System.out.println(cmd);
+        String[] cmd = {"ffmpeg", "-y", "-framerate", "1/5", "-r", "25", "-loop", "1", "-i", imagePath, "-c:v", "libx264", "-t", duration, "-pix_fmt", "yuv420p", "-vf", "scale=1080:720", outFile};
+        System.out.println(String.join(" ", cmd));
         executeFfmpeg(cmd);
     }
 
@@ -42,35 +47,48 @@ public class VideoStitchingService {
         FileUtils.writeByteArrayToFile(new File(imagePath), decodedBytes);
     }
 
-    public String getDuration(String timeStartStr, String timeEndStr) {
-        Double timeStart = convertTimeToSeconds(timeStartStr);
-        Double timeEnd = convertTimeToSeconds(timeEndStr);
-        Double durationSecs = timeEnd - timeStart;
-        String duration = convertTimeToHHmmss(durationSecs);
-        return duration;
+    public void formatTimestamp(Snippet snippet) {
+        snippet.setStartTime(convertTimeToSeconds(snippet.getStartTime()).toString());
+        snippet.setEndTime(convertTimeToSeconds(snippet.getEndTime()).toString());
+        addToTimestamp(snippet);
     }
 
-    public void stitchVideos(List<String> videoList) throws IOException, InterruptedException {
+    public String getDuration(String timeStartStr, String timeEndStr) {
+        Double durationSecs = Double.parseDouble(timeEndStr) - Double.parseDouble(timeStartStr);
+//        String duration = convertTimeToHHmmss(durationSecs);
+        return durationSecs.toString();
+    }
+
+    public void stitchVideos(List<String> videoList, String tapestryDuration) throws IOException, InterruptedException {
         Integer numOfTapestries =  new File(this.getClass().getClassLoader().getResource("tapestry").getPath()).listFiles().length;
         String textFile = new File(this.getClass().getClassLoader().getResource("working").getPath() + "/fileList.txt").getPath();
         String audioPath = new File(this.getClass().getClassLoader().getResource("static").getPath() + "/audiotrack.wav").getPath();
-        String videoOutputPath = new File(this.getClass().getClassLoader().getResource("tapestry").getPath() + String.format("/tapestryVideo%s.mp4", numOfTapestries)).getPath();
-        String finalOutputPath = new File(this.getClass().getClassLoader().getResource("tapestry").getPath() + String.format("/tapestry%s.mp4", numOfTapestries)).getPath();
+        String audioPathOut = new File(this.getClass().getClassLoader().getResource("working").getPath() + "/audiotrack.wav").getPath();
+        String videoOutputPath = new File(this.getClass().getClassLoader().getResource("tapestry-no-audio").getPath() + String.format("/tapestryNoAudio%s.mp4", numOfTapestries)).getPath();
+        String finalOutputPath = new File(this.getClass().getClassLoader().getResource("tapestry").getPath() + String.format("/tapestry%s.mp4", numOfTapestries + 1)).getPath();
         BufferedWriter bw = new BufferedWriter(new FileWriter(textFile));
         String videoTextList = String.join("\n", videoList);
         bw.write(videoTextList);
         bw.close();
-        String[] cmd1 = {"ffmpeg", "-f", "concat", "-safe", "0", "-i", textFile, "-c", "copy", videoOutputPath};
-        String[] cmd2 = {"ffmpeg", "-i", videoOutputPath, "-i", audioPath, "-shortest", "-c:v", "copy", "-c:a", "aac", finalOutputPath};
+//        String[] cmd2 = {"ffmpeg", "-i", videoOutputPath, "-i", audioPath, "-shortest", "-c:v", "copy", finalOutputPath};
+//        ffmpeg -i video.mp4 -i audio.wav -map 0:v -map 1:a -c:v copy -shortest output.mp4
+//        String[] cmd2 = {"ffmpeg", "-i", videoOutputPath, "-i", audioPath, "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-shortest", finalOutputPath};
+//        String[] cmd3 = {"ffmpeg", "-y", "-i", videoOutputPath, "-i", audioPathOut, finalOutputPath};
+        String[] cmd1 = {"ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", textFile, "-c", "copy", videoOutputPath};
+        String[] cmd2 = {"ffmpeg", "-y", "-i", audioPath, "-ss", "0", "-t", tapestryDuration, audioPathOut};
+        String[] cmd3 = {"ffmpeg", "-y", "-i", videoOutputPath, "-i", audioPathOut, "-map", "0:v", "-map", "1:a", "-c:v", "copy", finalOutputPath};
         System.out.println(String.join(" ", cmd1));
         System.out.println(String.join(" ", cmd2));
+        System.out.println(String.join(" ", cmd3));
         executeFfmpeg(cmd1);
         executeFfmpeg(cmd2);
+        executeFfmpeg(cmd3);
         new File(videoOutputPath).delete();
     }
 
     public List<String> trimVideo(String videoName, String startTime, String endTime, List<String> videoList) throws IOException, InterruptedException {
-        String tapestryMp4 = new File(this.getClass().getClassLoader().getResource("tapestry/tapestry.mp4").getPath()).getPath();
+        String numOfFiles = String.valueOf(new File(this.getClass().getClassLoader().getResource("tapestry").getPath()).listFiles().length);
+        String tapestryMp4 = new File(this.getClass().getClassLoader().getResource(String.format("tapestry/tapestry%s.mp4", numOfFiles)).getPath()).getPath();
         String outputPath = new File(new File(this.getClass().getClassLoader().getResource("working").getPath()).getPath() + String.format("/%s.mp4", videoName)).getPath();
         String[] cmd = {"ffmpeg", "-y", "-ss", startTime, "-to", endTime, "-i", tapestryMp4, "-c", "copy", "-an", outputPath};
         // -an means copy just video stream, not audio. -y means overwrite existing files
@@ -79,6 +97,19 @@ public class VideoStitchingService {
         String outPath = String.format("%s/%s.mp4", this.getClass().getClassLoader().getResource("working").getPath(), videoName);
         videoList.add(String.format("file '%s'", new File(outPath).getPath()));
         return videoList;
+    }
+
+    public void addToTimestamp(Snippet snippet) {
+        Double newEndTime = Double.parseDouble(snippet.getEndTime()) + 0.1;
+        snippet.setEndTime(newEndTime.toString());
+    }
+
+    public Double getTapestryDuration() throws IOException, InterruptedException {
+        Integer numOfTapestries =  new File(this.getClass().getClassLoader().getResource("tapestry").getPath()).listFiles().length;
+        String vidPath = new File(this.getClass().getClassLoader().getResource("tapestry").getPath()).listFiles()[numOfTapestries - 1].getPath();
+        String[] cmd = new String[]{"ffprobe", "-i", vidPath, "-v", "quiet", "-show_entries", "format=duration", "-hide_banner", "-of", "default=noprint_wrappers=1:nokey=1"};
+        Double tapestryDuration = Double.parseDouble(getFfmpegOutput(cmd));
+        return tapestryDuration;
     }
 
     public String convertTimeToHHmmss(Double time) {

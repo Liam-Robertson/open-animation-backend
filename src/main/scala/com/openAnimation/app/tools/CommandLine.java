@@ -1,6 +1,7 @@
 package com.openAnimation.app.tools;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
@@ -36,5 +37,20 @@ public class CommandLine {
             processDuration.waitFor();
         }
         String outputJson = strBuild.toString().trim();
+        System.out.println(outputJson);
+    }
+
+    public static String getFfmpegOutput(String[] cmd) throws IOException, InterruptedException {
+        Process processDuration = new ProcessBuilder(cmd).redirectErrorStream(true).start();
+        StringBuilder strBuild = new StringBuilder();
+        try (BufferedReader processOutputReader = new BufferedReader(new InputStreamReader(processDuration.getInputStream(), Charset.defaultCharset()));) {
+            String line;
+            while ((line = processOutputReader.readLine()) != null) {
+                strBuild.append(line + System.lineSeparator());
+            }
+            processDuration.waitFor();
+        }
+        String outputJson = strBuild.toString().trim();
+        return outputJson;
     }
 }
