@@ -5,6 +5,7 @@ import com.openAnimation.app.models.Snippet;
 import com.openAnimation.app.repository.CommentaryRepository;
 import com.openAnimation.app.services.StartupService;
 import com.openAnimation.app.services.VideoStitchingService;
+import java.io.FileInputStream;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +31,7 @@ public class PrimaryService {
         String duration = videoStitchingService.getDuration(snippet.getStartTime(), snippet.getEndTime());
         String imageData = snippet.getImage().split("data:image/png;base64,")[1];
         Integer numFiles = new File(this.getClass().getClassLoader().getResource("images").getPath()).listFiles().length + 1;
-        String imagePath = new File(this.getClass().getClassLoader().getResource("images").getPath() + String.format("\\currentSnippet%s.png", numFiles)).getPath();
+        String imagePath = new File(this.getClass().getClassLoader().getResource("images").getPath() + String.format("/currentSnippet%s.png", numFiles + 1)).getPath();
         videoStitchingService.saveImageToFilesystem(imageData, imagePath);
         videoStitchingService.createVideoFromImage(duration, imagePath);
         videoStitchingService.stitchSnippetIntoTapestry(snippet.getStartTime(), snippet.getEndTime());
@@ -50,8 +51,8 @@ public class PrimaryService {
 
     public byte[] getTapestry() throws IOException {
         Integer numOfTapestries = new File(this.getClass().getClassLoader().getResource("tapestry").getPath()).listFiles().length;
-        File tapestry = new File(this.getClass().getClassLoader().getResource("tapestry").getPath()).listFiles()[numOfTapestries - 1];
-        InputStream videoStreamInput = this.getClass().getClassLoader().getResourceAsStream(String.format("tapestry/%s", tapestry.getName()));
+        File tapestry = new File(this.getClass().getClassLoader().getResource("tapestry").getPath() + String.format("/tapestry%s.mp4", numOfTapestries));
+        InputStream videoStreamInput = new FileInputStream(tapestry);
         byte[] videoByteArr = IOUtils.toByteArray(videoStreamInput);
         return videoByteArr;
     }

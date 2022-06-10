@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Objects;
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;
-import scala.Int;
 
 import static java.lang.Math.floor;
 import static java.lang.Math.round;
@@ -35,7 +34,7 @@ public class VideoStitchingService {
     }
 
     public void createVideoFromImage(String duration, String imagePath) throws IOException, InterruptedException {
-        String outFile = new File(this.getClass().getClassLoader().getResource("working").getPath() + "\\currentSnippet.mp4").getPath();
+        String outFile = new File(this.getClass().getClassLoader().getResource("working").getPath() + "/currentSnippet.mp4").getPath();
 //        String cmd = String.format("ffmpeg -y -framerate 1/5 -r 25 -loop 1 -i %s -c:v libx264 -t %s -pix_fmt yuv420p -vf scale=1080:720 %s", imagePath, duration, outFile);
         String[] cmd = {"ffmpeg", "-y", "-framerate", "1/5", "-r", "25", "-loop", "1", "-i", imagePath, "-c:v", "libx264", "-t", duration, "-pix_fmt", "yuv420p", "-vf", "scale=1080:720", outFile};
         System.out.println(String.join(" ", cmd));
@@ -61,10 +60,11 @@ public class VideoStitchingService {
 
     public void stitchVideos(List<String> videoList, String tapestryDuration) throws IOException, InterruptedException {
         Integer numOfTapestries =  new File(this.getClass().getClassLoader().getResource("tapestry").getPath()).listFiles().length;
+        Integer numOfNoAudioVids =  new File(this.getClass().getClassLoader().getResource("tapestry-no-audio").getPath()).listFiles().length;
         String textFile = new File(this.getClass().getClassLoader().getResource("working").getPath() + "/fileList.txt").getPath();
         String audioPath = new File(this.getClass().getClassLoader().getResource("static").getPath() + "/audiotrack.wav").getPath();
         String audioPathOut = new File(this.getClass().getClassLoader().getResource("working").getPath() + "/audiotrack.wav").getPath();
-        String videoOutputPath = new File(this.getClass().getClassLoader().getResource("tapestry-no-audio").getPath() + String.format("/tapestryNoAudio%s.mp4", numOfTapestries)).getPath();
+        String videoOutputPath = new File(this.getClass().getClassLoader().getResource("tapestry-no-audio").getPath() + String.format("/tapestryNoAudio%s.mp4", numOfNoAudioVids + 2)).getPath();
         String finalOutputPath = new File(this.getClass().getClassLoader().getResource("tapestry").getPath() + String.format("/tapestry%s.mp4", numOfTapestries + 1)).getPath();
         BufferedWriter bw = new BufferedWriter(new FileWriter(textFile));
         String videoTextList = String.join("\n", videoList);
@@ -83,7 +83,6 @@ public class VideoStitchingService {
         executeFfmpeg(cmd1);
         executeFfmpeg(cmd2);
         executeFfmpeg(cmd3);
-        new File(videoOutputPath).delete();
     }
 
     public List<String> trimVideo(String videoName, String startTime, String endTime, List<String> videoList) throws IOException, InterruptedException {
